@@ -119,7 +119,7 @@ void setup() {
 
   digitalWrite(RF_INTX_LED, LOW);
 
-  attachInterrupt(1, pin_read, HIGH);
+  //attachInterrupt(1, pin_read, HIGH);
 
   attachInterrupt(0, get_data, FALLING);//kick things off by attachin the IRQ interrupt
 
