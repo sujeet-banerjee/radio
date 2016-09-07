@@ -4,6 +4,11 @@
 
 #include <SPI.h>
 
+//Verbosity
+#define VERBOSE false
+
+#define AUTO_ACK false
+
 #define RF_CE   9
 #define RF_CSN 10
 #define RF_INTX_LED 6
@@ -18,6 +23,8 @@
 
 #define RF_INTX 2
 #define DEBUG_LED 5
+
+
 
 //Read from Serial into Buffer X
 int x[10] = { -1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -85,7 +92,7 @@ void setup() {
 
   radio.begin();
   radio.setCRCLength( RF24_CRC_16 ) ;
-  radio.setAutoAck( true ) ;
+  radio.setAutoAck( AUTO_ACK ) ;
 
   radio.openReadingPipe(1, pipe);
   //radio.enableDynamicPayloads();
@@ -95,9 +102,9 @@ void setup() {
 
   delay(2000);
 
-  /* 
-   * Bring back radio to Low (CSN = 1) 
-   */
+  /*
+     Bring back radio to Low (CSN = 1)
+  */
   digitalWrite(RF_CSN, HIGH);
 
   SPI.setBitOrder(MSBFIRST);
@@ -131,32 +138,6 @@ void get_data() { // get data start get data start get data start get data start
 }
 
 void loop() {
-
-  //  if (doThis)
-  //  {
-  //    noInterrupts();
-  //    pinMode(SW_INTX, INPUT);//Input from buttons
-  //    digitalWrite(SW_INTX, LOW);
-  //    delayMicroseconds(4000);
-  //    doThis = false;
-  //
-  //    //Clean off the SW_INTX debug LED state as well
-  //    //digitalWrite(SW_INTX_LED, LOW);
-  //
-  //    Serial.println(" -- Done This -- ");
-  //    interrupts();
-  //    //delayMicroseconds(200);
-  //  }
-  //  else
-  //  {
-  //    delayMicroseconds(300);
-  //  }
-  //
-  //  if (debugLog++ > 3000)
-  //  {
-  //    debugLog = 0;
-  //    Serial.println("LOOP: do work");
-  //  }
 
   // SERIAL SW control
   int count = 0;

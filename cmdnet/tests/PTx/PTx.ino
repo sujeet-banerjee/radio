@@ -5,7 +5,9 @@
 #include <SPI.h>
 
 //Verbosity
-#define VERBOSE true
+#define VERBOSE false
+
+#define AUTO_ACK false
 
 // Radio Pins
 #define CE_PIN   9
@@ -22,7 +24,7 @@
 const uint64_t pipe = 0xE8E8F0F0E1LL;
 
 // Create a Radio
-RF24Debug radio(CE_PIN, CSN_PIN); 
+RF24Debug radio(CE_PIN, CSN_PIN);
 
 //Data to pass-on
 struct Mesg
@@ -80,6 +82,9 @@ void setup()   /****** SETUP: RUNS ONCE ******/
 
   Serial.println("Nrf24L01 Transmitter Starting...");
   radio.begin();
+  radio.setCRCLength( RF24_CRC_16 ) ;
+  radio.setAutoAck( AUTO_ACK ) ;
+
   radio.openWritingPipe(pipe);
   radio.printDetails();
   delay(2000);
@@ -137,10 +142,23 @@ void get_data()
 
 char valY = 808;
 int valX = 333;
-void loop()  
+String readRaw;
+void loop()
 {
   delay(20);
   Serial.println("................");
+
+  while (Serial.available() > 0)
+  {
+    readRaw = Serial.read();
+    Serial.println(readRaw);
+    if (readRaw.startsWith("CMD "))
+    {
+      String cmd = readRaw.substring(4);
+      Serial.print("CMD: ");
+      Serial.println(cmd);
+    }
+  }
 
   req.nodeId = valX;
   req.compId = valX;
@@ -167,7 +185,7 @@ void loop()
   delay(200);
   digitalWrite(LED_LOOP, LOW);
 
-  if(VERBOSE)
+  if (VERBOSE)
     radio.printDetails();
 
 }//--(end main loop )---
