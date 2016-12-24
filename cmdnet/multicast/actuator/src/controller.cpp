@@ -22,7 +22,7 @@ DeviceManager *deviceManager = new DeviceManager();
 
 void indicateStartup() {
 	pinMode(LED_DEFAULT, OUTPUT);
-	Serial.println("Starting MAIN...");
+	Serial.println("Starting Actuator MAIN...");
 	delay(2000);
 	digitalWrite(LED_DEFAULT, HIGH);
 	delay(500);
@@ -47,7 +47,9 @@ void setup()
 	 * All modules setup
 	 */
 	indicateStartup();
+	radioInterceptor->setInterruptIndicator(6);
 	radioInterceptor->setup();
+
 	deviceManager->setup();
 
 	// Does not work, due to C++ restrictions on type  system being able
@@ -100,4 +102,5 @@ int main(void) {
 	setup();
 	while (true)
 		loop();
+	Serial.println("======== EXIT!!! ========");
 }

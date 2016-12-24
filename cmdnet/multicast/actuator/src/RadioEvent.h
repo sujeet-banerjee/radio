@@ -83,34 +83,6 @@ typedef struct {
     }
 } RadioPipe;
 
-/*
-typedef struct {
-    byte id;
-    byte data[7];
-
-    void fromLong(uint64_t *input) {
-        memcpy(this, input, sizeof(*this));
-    }
-
-    uint64_t toLong() {
-    	uint32_t newLong;
-        memcpy(&newLong, this, sizeof(*this));
-        return newLong;
-    }
-
-    void dataFromLong(uint64_t *input) {
-		memcpy(&(this->data), input, sizeof(this->data));
-	}
-
-	uint64_t dataToLong() {
-		uint64_t newLong;
-		memcpy(&newLong, &(this->data), sizeof(this->data));
-		return newLong;
-	}
-
-} ComponentData;
-*/
-
 typedef struct {
 	// 2
     uint16_t head;
@@ -146,6 +118,26 @@ typedef struct {
 		return ((this->component << 8) >> 8) & 0xffffffffffffffLL;
 	}
 
+	String toString(){
+		String ret = String("Head:");
+		ret += String(this->head, HEX);
+		ret += String("|Orig:");
+		ret += String(this->originatorNode, HEX);
+		ret += String("|Reply-to:");
+		RadioPipe replyTo = this->replyTo;
+		ret += replyTo.toString();
+		ret += String("|Component:");
+		ret += String(getWordByteB8(&(this->component)), HEX);
+		ret += String(getWordByteB7(&(this->component)), HEX);
+		ret += String(getWordByteB6(&(this->component)), HEX);
+		ret += String(getWordByteB5(&(this->component)), HEX);
+		ret += String(getWordByteB4(&(this->component)), HEX);
+		ret += String(getWordByteB3(&(this->component)), HEX);
+		ret += String(getWordByteB2(&(this->component)), HEX);
+		ret += String(getWordByteB1(&(this->component)), HEX);
+
+		return ret;
+	}
 } RadioPacket;
 
 
@@ -168,7 +160,7 @@ public:
 	inline bool isAck() {return isACK(this->radioPacket->head);}
 	inline bool isAckRequested() {return isACKWAIT(this->radioPacket->head);}
 
-	const String toString();
+	String toString();
 };
 
 #endif /* SRC_RADIOEVENT_H_ */

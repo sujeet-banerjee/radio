@@ -24,9 +24,10 @@ RadioEvent::RadioEvent(const RadioPacket *radioPacket) {
 }
 
 RadioEvent::~RadioEvent() {
+	delete this->radioPacket;
 }
 
-const String RadioEvent::toString() {
+String RadioEvent::toString() {
 	String ret = String("Head:");
 	ret += String(this->radioPacket->head);
 	ret += String("|Orig:");
@@ -40,4 +41,6 @@ const String RadioEvent::toString() {
 	//ret += String(this->radioPacket->getComponentId());
 
 	return ret;
+//	radioPacket->toString();
+//	return String("");
 }

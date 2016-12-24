@@ -146,6 +146,49 @@ typedef struct {
 		return ((this->component << 8) >> 8) & 0xffffffffffffffLL;
 	}
 
+
+	String toString(){
+		String ret = String("Head:");
+		ret += String(this->head, HEX);
+		ret += String("|Orig:");
+		ret += String(this->originatorNode, HEX);
+		ret += String("|Reply-to:");
+		RadioPipe replyTo = this->replyTo;
+		ret += replyTo.toString();
+		ret += String("|Component:");
+		ret += String(getWordByteB8(&(this->component)), HEX);
+		ret += String(getWordByteB7(&(this->component)), HEX);
+		ret += String(getWordByteB6(&(this->component)), HEX);
+		ret += String(getWordByteB5(&(this->component)), HEX);
+		ret += String(getWordByteB4(&(this->component)), HEX);
+		ret += String(getWordByteB3(&(this->component)), HEX);
+		ret += String(getWordByteB2(&(this->component)), HEX);
+		ret += String(getWordByteB1(&(this->component)), HEX);
+
+		return ret;
+	}
+
+//	String toString() {
+//		String ret = String("Head:");
+//		ret += String(this->head, HEX);
+//		ret += String("|Orig:");
+//		ret += String(this->originatorNode, HEX);
+//		ret += String("|Reply-to:");
+//		RadioPipe replyTo = this->replyTo;
+//		ret += replyTo.toString();
+//		ret += String("|Component:");
+//		ret += String(getWordByteB8(&(this->component)), HEX);
+//		ret += String(getWordByteB7(&(this->component)), HEX);
+//		ret += String(getWordByteB6(&(this->component)), HEX);
+//		ret += String(getWordByteB5(&(this->component)), HEX);
+//		ret += String(getWordByteB4(&(this->component)), HEX);
+//		ret += String(getWordByteB3(&(this->component)), HEX);
+//		ret += String(getWordByteB2(&(this->component)), HEX);
+//		ret += String(getWordByteB1(&(this->component)), HEX);
+//
+//		return ret;
+//	}
+
 } RadioPacket;
 
 
@@ -168,7 +211,7 @@ public:
 	inline bool isAck() {return isACK(this->radioPacket->head);}
 	inline bool isAckRequested() {return isACKWAIT(this->radioPacket->head);}
 
-	const String toString();
+	String toString();
 };
 
 #endif /* SRC_RADIOEVENT_H_ */

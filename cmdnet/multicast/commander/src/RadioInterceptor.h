@@ -19,9 +19,9 @@
 #define CE_PIN   9
 #define CSN_PIN 10
 
-//#define SCK 13
-//#define MISO 12
-//#define MOSI 11
+#define SCK 13
+#define MISO 12
+#define MOSI 11
 
 #define RF_INTX 2
 #define DEBUG_LED 5

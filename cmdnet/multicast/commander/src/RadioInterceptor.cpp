@@ -12,6 +12,9 @@ RadioInterceptor::RadioInterceptor() {
 }
 
 RadioInterceptor::~RadioInterceptor() {
+	delete this->chQ;
+	delete this->radio;
+	delete this->radioInterpretter;
 }
 
 Fptr RadioInterceptor::getInterruptHandler() {
@@ -46,7 +49,7 @@ void RadioInterceptor::setup() {
 	radio->setPayloadSize(32);
 	radio->setDataRate(RF24_1MBPS);
 	radio->setCRCLength(RF24_CRC_16);
-	radio->setAutoAck(true);
+	radio->setAutoAck(false);
 
 	radio->openReadingPipe(1, this->pipeA0);
 	//radio->enableDynamicPayloads();
@@ -69,15 +72,17 @@ void RadioInterceptor::loop() {
 	 */
 	if(dataReceived)
 	{
-		Serial.println("NRF Data received...");
+		this->indicateInterrupt();
+		Serial.println("[Commander] NRF Data received...");
 		dataReceived = false;
-		Serial.print("Radio Event Size: ");
+		Serial.print("[Commander] Radio Event Size: ");
 		Serial.println(this->chQ->size());
 
 		Element<RadioEvent>* evt = this->chQ->dequeue();
-		Serial.print("Radio Event: ");
+		Serial.print("[Commander] Radio Event: ");
 		Serial.println(evt->data->toString());
 
+		delete evt;
 	}
 
 }
@@ -99,6 +104,7 @@ void RadioInterceptor::interrupt() {
 	indicateInterrupt();
 	if (radio->available()) {
 		bool done = false;
+		int pktFragmentCount = 0;
 		while (!done) {
 			// Fetch the data payload
 			dataReceived = true;
@@ -107,21 +113,25 @@ void RadioInterceptor::interrupt() {
 			RadioEvent *re = new RadioEvent(testData);
 			Element<RadioEvent> *testElm = new Element<RadioEvent>(re);
 			this->chQ->enqueue(testElm);
+			pktFragmentCount++;
+			//delete testData;
+			Serial.print(".");
 		}
+		Serial.println();
 	} else {
-		Serial.print("No Signal Sent! Last value: ");
+		Serial.print("False interrupt: No radio! No Signal Sent!");
 	}
 
 }
 
 void RadioInterceptor::setInterruptIndicator(uint8_t pin) {
 	// pin must not be one of 9, 10, 11, 12 ,13 used in SPI
-
 	if(9 <= pin <=13)
 		//throw "";
 		return;
 
 	pinMode(pin, OUTPUT);
+	delay(200);
 	digitalWrite(pin, LOW);
 	this->interruptIndicator = pin;
 }

@@ -47,6 +47,7 @@ void setup()
 	 * All modules setup
 	 */
 	indicateStartup();
+	radioInterceptor->setInterruptIndicator(6);
 	radioInterceptor->setup();
 	deviceManager->setup();
 

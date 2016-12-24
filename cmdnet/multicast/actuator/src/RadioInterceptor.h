@@ -19,9 +19,9 @@
 #define CE_PIN   9
 #define CSN_PIN 10
 
-//#define SCK 13
-//#define MISO 12
-//#define MOSI 11
+#define SCK 13
+#define MISO 12
+#define MOSI 11
 
 #define RF_INTX 2
 #define DEBUG_LED 5
@@ -64,6 +64,7 @@ class RadioInterceptor {
 
 private:
 	const uint64_t pipeA0 = 0xE8E8F0F0E1LL;
+	const uint64_t pipeN0 = 0xF0E9F0F0D2LL;
 
 	/*
 	 * Create a Radio
@@ -80,12 +81,21 @@ private:
 	 */
 	bool dataReceived = false;
 
+	/**
+	 * temporary for testing and debugging
+	 */
+	unsigned short waitCountBeforeSend = 0;
+
 	/*
 	 * Indicators...
 	 */
 	uint8_t interruptIndicator;
 
 	void indicateInterrupt();
+
+	void indicateNoRadioData();
+
+	void sendTestMsgToCommander();
 
 public:
 	RadioInterceptor();
