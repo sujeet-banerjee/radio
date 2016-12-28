@@ -79,10 +79,13 @@ void RadioInterceptor::loop() {
 		Serial.println(this->chQ->size());
 
 		Element<RadioEvent>* evt = this->chQ->dequeue();
-		Serial.print("[Commander] Radio Event: ");
+		Serial.print("[Commander][DQ] Radio Event: ");
 		Serial.println(evt->data->toString());
 
 		delete evt;
+
+		Serial.print("[Commander][DQ] Radio Event Size: ");
+		Serial.println(this->chQ->size());
 	}
 
 }
@@ -110,12 +113,19 @@ void RadioInterceptor::interrupt() {
 			dataReceived = true;
 			RadioPacket *testData = new RadioPacket();
 			done = radio->read(testData, sizeof (*testData));
+
 			RadioEvent *re = new RadioEvent(testData);
 			Element<RadioEvent> *testElm = new Element<RadioEvent>(re);
 			this->chQ->enqueue(testElm);
 			pktFragmentCount++;
+			Serial.print("[Commander][Q] Radio Event: ");
+			Serial.println(re->toString());
+
 			//delete testData;
-			Serial.print(".");
+
+//			Serial.print(".");
+//			if(done)
+//				Serial.println("|");
 		}
 		Serial.println();
 	} else {

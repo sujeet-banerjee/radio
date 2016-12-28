@@ -29,6 +29,7 @@
  */
 void setByteAtLocation(uint64_t* destPtr, byte src, byte location);
 byte getByteAtLocation(uint64_t* wordPtr, byte location);
+byte getByteAtLocationConst(const uint64_t* wordPtr, byte location);
 
 /**
  * Set/Get a byte, in an 8-byte-long Word.
@@ -53,6 +54,20 @@ byte getByteAtLocation(uint64_t* wordPtr, byte location);
 #define getWordByteB1(w)    ((byte)getByteAtLocation((w), 0))
 
 /*
+ * 'const' variations of all getByte** methods.
+ * This is needed as in C++ 'const pointer' can not
+ * be assigned to a 'pointer' (and vice-versa).
+ */
+#define getWordByteB8Const(w)    ((byte)getByteAtLocationConst((w), 56))
+#define getWordByteB7Const(w)    ((byte)getByteAtLocationConst((w), 48))
+#define getWordByteB6Const(w)    ((byte)getByteAtLocationConst((w), 40))
+#define getWordByteB5Const(w)    ((byte)getByteAtLocationConst((w), 32))
+#define getWordByteB4Const(w)    ((byte)getByteAtLocationConst((w), 24))
+#define getWordByteB3Const(w)    ((byte)getByteAtLocationConst((w), 16))
+#define getWordByteB2Const(w)    ((byte)getByteAtLocationConst((w), 8))
+#define getWordByteB1Const(w)    ((byte)getByteAtLocationConst((w), 0))
+
+/*
  * Command:
  *    first 6 bits (MSB) is command-head
  *    last 10 bit form the opcode.
@@ -67,8 +82,9 @@ typedef struct {
     }
 
     const char * toString() {
-        static char newString[sizeof(*this)];
+        static char newString[sizeof(*this) +1];
         memcpy(&newString, this, sizeof(*this));
+        newString[sizeof(*this)] = 0;
         return newString;
     }
 
@@ -77,10 +93,25 @@ typedef struct {
     }
 
     uint64_t toLong() {
-    	uint64_t newLong;
+    	uint64_t newLong = 0;
         memcpy(&newLong, this, sizeof(*this));
         return newLong;
     }
+
+    String toHexString(){
+    	uint64_t longVal = this->toLong();
+		String ret = String("");
+		ret += String(getWordByteB8(&longVal), HEX);
+		ret += String(getWordByteB7(&longVal), HEX);
+		ret += String(getWordByteB6(&longVal), HEX);
+		ret += String(getWordByteB5(&longVal), HEX);
+		ret += String(getWordByteB4(&longVal), HEX);
+		ret += String(getWordByteB3(&longVal), HEX);
+		ret += String(getWordByteB2(&longVal), HEX);
+		ret += String(getWordByteB1(&longVal), HEX);
+		return ret;
+	}
+
 } RadioPipe;
 
 /*
@@ -146,7 +177,6 @@ typedef struct {
 		return ((this->component << 8) >> 8) & 0xffffffffffffffLL;
 	}
 
-
 	String toString(){
 		String ret = String("Head:");
 		ret += String(this->head, HEX);
@@ -154,7 +184,8 @@ typedef struct {
 		ret += String(this->originatorNode, HEX);
 		ret += String("|Reply-to:");
 		RadioPipe replyTo = this->replyTo;
-		ret += replyTo.toString();
+		//ret += String(replyTo.toString());
+		ret += replyTo.toHexString();
 		ret += String("|Component:");
 		ret += String(getWordByteB8(&(this->component)), HEX);
 		ret += String(getWordByteB7(&(this->component)), HEX);

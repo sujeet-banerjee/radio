@@ -19,6 +19,10 @@ byte getByteAtLocation(uint64_t* wordPtr, byte location) {
 	return ((*wordPtr) >> location) & 0xff;
 }
 
+byte getByteAtLocationConst(const uint64_t* wordPtr, byte location) {
+	return ((*wordPtr) >> location) & 0xff;
+}
+
 RadioEvent::RadioEvent(const RadioPacket *radioPacket) {
 	this->radioPacket = radioPacket;
 }
@@ -29,18 +33,23 @@ RadioEvent::~RadioEvent() {
 
 String RadioEvent::toString() {
 	String ret = String("Head:");
-	ret += String(this->radioPacket->head);
+	ret += String(this->radioPacket->head, HEX);
 	ret += String("|Orig:");
-	ret += String(this->radioPacket->originatorNode);
+	ret += String(this->radioPacket->originatorNode, HEX);
 	ret += String("|Reply-to:");
 	RadioPipe replyTo = this->radioPacket->replyTo;
-//	ret += replyTo.toLong();
-	//String(0x7878787878787878LL);
+	ret += replyTo.toHexString();
 	ret += String("|Component:");
-//	ret += String(this->radioPacket->component);
-	//ret += String(this->radioPacket->getComponentId());
+
+	ret += String(getWordByteB8Const(&(this->radioPacket->component)), HEX);
+	ret += String(getWordByteB7Const(&(this->radioPacket->component)), HEX);
+	ret += String(getWordByteB6Const(&(this->radioPacket->component)), HEX);
+	ret += String(getWordByteB5Const(&(this->radioPacket->component)), HEX);
+	ret += String(getWordByteB4Const(&(this->radioPacket->component)), HEX);
+	ret += String(getWordByteB3Const(&(this->radioPacket->component)), HEX);
+	ret += String(getWordByteB2Const(&(this->radioPacket->component)), HEX);
+	ret += String(getWordByteB1Const(&(this->radioPacket->component)), HEX);
+
 
 	return ret;
-//	radioPacket->toString();
-//	return String("");
 }

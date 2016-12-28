@@ -29,16 +29,22 @@ RadioEvent::~RadioEvent() {
 
 String RadioEvent::toString() {
 	String ret = String("Head:");
-	ret += String(this->radioPacket->head);
-	ret += String("|Orig:");
-	ret += String(this->radioPacket->originatorNode);
-	ret += String("|Reply-to:");
-	RadioPipe replyTo = this->radioPacket->replyTo;
-//	ret += replyTo.toLong();
-	//String(0x7878787878787878LL);
-	ret += String("|Component:");
-//	ret += String(this->radioPacket->component);
-	//ret += String(this->radioPacket->getComponentId());
+		ret += String(this->radioPacket->head, HEX);
+		ret += String("|Orig:");
+		ret += String(this->radioPacket->originatorNode, HEX);
+		ret += String("|Reply-to:");
+		RadioPipe replyTo = this->radioPacket->replyTo;
+		ret += replyTo.toHexString();
+		ret += String("|Component:");
+
+//		ret += String(getWordByteB8Const(&(this->radioPacket->component)), HEX);
+//		ret += String(getWordByteB7Const(&(this->radioPacket->component)), HEX);
+//		ret += String(getWordByteB6Const(&(this->radioPacket->component)), HEX);
+//		ret += String(getWordByteB5Const(&(this->radioPacket->component)), HEX);
+//		ret += String(getWordByteB4Const(&(this->radioPacket->component)), HEX);
+//		ret += String(getWordByteB3Const(&(this->radioPacket->component)), HEX);
+//		ret += String(getWordByteB2Const(&(this->radioPacket->component)), HEX);
+//		ret += String(getWordByteB1Const(&(this->radioPacket->component)), HEX);
 
 	return ret;
 }

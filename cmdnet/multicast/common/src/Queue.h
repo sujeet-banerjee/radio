@@ -18,8 +18,11 @@ public:
     Element(T *data)	{
 		this->data = data;
 		this->next = nullptr;
-	}
-
+	};
+    virtual ~Element(){
+    	delete this->data;
+    	delete this->next;
+    }
 };
 
 

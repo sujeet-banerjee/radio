@@ -186,7 +186,7 @@ void RadioInterceptor::sendTestMsgToCommander() {
 	testData->head = 0x493d;
 	testData->replyTo.fromString("Nod!@");
 	testData->component = 0x123456789abcef3dLL;
-	testData->setComponentId(0x00);
+	testData->setComponentId(0xee);
 	Serial.print("[Actuator] Sending Test Packet to the commander: ");
     Serial.println(testData->toString());
     Serial.print("[Actuator] Test Packet size: ");

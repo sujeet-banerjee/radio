@@ -67,9 +67,10 @@ typedef struct {
     }
 
     const char * toString() {
-        static char newString[sizeof(*this)];
-        memcpy(&newString, this, sizeof(*this));
-        return newString;
+    	static char newString[sizeof(*this) +1];
+		memcpy(&newString, this, sizeof(*this));
+		newString[sizeof(*this)] = 0;
+		return newString;
     }
 
     void fromLong(uint64_t *input) {
@@ -77,10 +78,25 @@ typedef struct {
     }
 
     uint64_t toLong() {
-    	uint64_t newLong;
+    	uint64_t newLong = 0;
         memcpy(&newLong, this, sizeof(*this));
         return newLong;
     }
+
+    String toHexString(){
+		uint64_t longVal = this->toLong();
+		String ret = String("");
+		ret += String(getWordByteB8(&longVal), HEX);
+		ret += String(getWordByteB7(&longVal), HEX);
+		ret += String(getWordByteB6(&longVal), HEX);
+		ret += String(getWordByteB5(&longVal), HEX);
+		ret += String(getWordByteB4(&longVal), HEX);
+		ret += String(getWordByteB3(&longVal), HEX);
+		ret += String(getWordByteB2(&longVal), HEX);
+		ret += String(getWordByteB1(&longVal), HEX);
+		return ret;
+	}
+
 } RadioPipe;
 
 typedef struct {
@@ -100,7 +116,13 @@ typedef struct {
     uint64_t additional2;
 
     void setComponentId(byte compId){
+    	Serial.print("[Actuator][DEBUG] Setting componentID");
+    	Serial.println(compId, HEX);
+    	Serial.print("[Actuator][DEBUG] existing componentID");
+    	Serial.println(getWordByteB8(&(this->component)), HEX);
 		setWordByteB8(&(this->component), compId);
+		Serial.print("[Actuator][DEBUG] new componentID");
+		Serial.println(getWordByteB8(&(this->component)), HEX);
 	}
 
 	byte getComponentId(){
@@ -125,7 +147,8 @@ typedef struct {
 		ret += String(this->originatorNode, HEX);
 		ret += String("|Reply-to:");
 		RadioPipe replyTo = this->replyTo;
-		ret += replyTo.toString();
+		//ret += replyTo.toString();
+		ret += replyTo.toHexString();
 		ret += String("|Component:");
 		ret += String(getWordByteB8(&(this->component)), HEX);
 		ret += String(getWordByteB7(&(this->component)), HEX);
