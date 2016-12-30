@@ -8,6 +8,8 @@
 #ifndef SRC_SERIALINTERPRETTER_H_
 #define SRC_SERIALINTERPRETTER_H_
 
+#include<HardwareSerial.h>
+
 class SerialInterpretter {
 public:
 	SerialInterpretter();

@@ -42,7 +42,16 @@ public:
 	RadioInterpretter(RadioInterceptor *radioInterceptor);
 	virtual ~RadioInterpretter();
 
-	void interpret(const RadioEvent* re);
+	void setup();
+
+	/**
+	 * Interprets the cmd and takes action synchronously!
+	 */
+	void interpret(RadioEvent* re);
+
+	void writeRadio(const RadioEvent* re, const uint64_t pipeAddress);
+
+	void writeRadio(const RadioPacket* pkt, const uint64_t pipeAddress);
 };
 
 /**
@@ -64,7 +73,7 @@ class RadioInterceptor {
 
 private:
 	const uint64_t pipeA0 = 0xE8E8F0F0E1LL;
-	const uint64_t pipeN0 = 0xF0E9F0F0D2LL;
+	uint64_t pipeN0 = 0xF0E9F0F0D2LL;
 
 	/*
 	 * Create a Radio
@@ -74,6 +83,9 @@ private:
 
 	Queue<RadioEvent> *chQ = new Queue<RadioEvent>(30);
 
+	/**
+	 * Owner
+	 */
 	RadioInterpretter *radioInterpretter ;//= new RadioInterpretter(this);
 
 	/**
@@ -85,6 +97,10 @@ private:
 	 * temporary for testing and debugging
 	 */
 	unsigned short waitCountBeforeSend = 0;
+	/**
+	 * temporary origId for testing
+	 */
+	byte testOrigId = 0x32;
 
 	/*
 	 * Indicators...
@@ -97,6 +113,12 @@ private:
 
 	void sendTestMsgToCommander();
 
+	/**
+	 * Enhancement of sendTestMsgToCommander
+	 * TODO obtain originator Id
+	 */
+	void initiateRegistration(byte origId);
+
 public:
 	RadioInterceptor();
 	virtual ~RadioInterceptor();
@@ -105,11 +127,21 @@ public:
 
 	void interrupt();
 
+	void writeRadio(const RadioPacket *pkt, const uint64_t pipeAddress);
+
 	void setup();
 
 	void loop();
 
 	void setInterruptIndicator(uint8_t pin);
+
+	const RadioInterpretter* getRadioInterpretter() const {
+		return radioInterpretter;
+	}
+
+	void setRadioInterpretter(RadioInterpretter * radioInterpretter) {
+		this->radioInterpretter = radioInterpretter;
+	}
 };
 
 

@@ -96,7 +96,8 @@ void RadioInterceptor::loop() {
 		 */
 		this->indicateNoRadioData();
 
-		this->sendTestMsgToCommander();
+		//this->sendTestMsgToCommander();
+		this->initiateRegistration((this->testOrigId)++);
 		waitCountBeforeSend = 0;
 	}
 
@@ -144,8 +145,6 @@ void RadioInterceptor::interrupt() {
 	 */
 	//this->indicateInterrupt();
 
-
-
 //	if (radio->available()) {
 //		bool done = false;
 //		while (!done) {
@@ -153,9 +152,12 @@ void RadioInterceptor::interrupt() {
 //			dataReceived = true;
 //			RadioPacket *testData = new RadioPacket();
 //			done = radio->read(testData, sizeof (*testData));
-//			RadioEvent *re = new RadioEvent(testData);
-//			Element<RadioEvent> *testElm = new Element<RadioEvent>(re);
-//			this->chQ->enqueue(testElm);
+////			RadioEvent *re = new RadioEvent(testData);
+////			Element<RadioEvent> *testElm = new Element<RadioEvent>(re);
+////			this->chQ->enqueue(testElm);
+//
+//			Serial.print("[Actuator][Radio] Received Echo: ");
+//			Serial.println(testData->toString());
 //		}
 //	} else {
 //		//Serial.print(".");
@@ -177,7 +179,7 @@ void RadioInterceptor::setInterruptIndicator(uint8_t pin) {
 }
 
 void RadioInterceptor::sendTestMsgToCommander() {
-	this->radio->openWritingPipe(this->pipeA0);
+	//this->radio->openWritingPipe(this->pipeA0);
 	this->radio->stopListening();
 	delay(20);
 
@@ -191,6 +193,28 @@ void RadioInterceptor::sendTestMsgToCommander() {
     Serial.println(testData->toString());
     Serial.print("[Actuator] Test Packet size: ");
     Serial.println(sizeof(*testData));
+	this->radio->write(testData, sizeof(*testData));
+	delay(20);
+	delete testData;
+
+	this->radio->startListening();
+	delay(20);
+}
+
+void RadioInterceptor::initiateRegistration(byte origId) {
+	this->radio->stopListening();
+	delay(20);
+
+	RadioPacket *testData = new RadioPacket();
+	testData->originatorNode = origId;
+	testData->head = 0x493d;
+	testData->replyTo.fromLong(&(this->pipeN0));
+	testData->component = 0x123456789abcef3dLL;
+	testData->setComponentId(0xee);
+	Serial.print("[Actuator] Sending Test Packet to the commander: ");
+	Serial.println(testData->toString());
+	Serial.print("[Actuator] Test Packet size: ");
+	Serial.println(sizeof(*testData));
 	this->radio->write(testData, sizeof(*testData));
 	delay(20);
 	delete testData;

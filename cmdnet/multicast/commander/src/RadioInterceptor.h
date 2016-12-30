@@ -42,7 +42,16 @@ public:
 	RadioInterpretter(RadioInterceptor *radioInterceptor);
 	virtual ~RadioInterpretter();
 
-	void interpret(const RadioEvent* re);
+	void setup();
+
+	/**
+	 * Interprets the cmd and takes action synchronously!
+	 */
+	void interpret(RadioEvent* re);
+
+	void writeRadio(RadioEvent* re, RadioPipe* pipeAddress);
+
+	void writeRadio(RadioPacket* pkt, RadioPipe* pipeAddress);
 };
 
 /**
@@ -63,7 +72,7 @@ public:
 class RadioInterceptor {
 
 private:
-	const uint64_t pipeA0 = 0xE8E8F0F0E1LL;
+	uint64_t pipeA0 = 0xE8E8F0F0E1LL;
 
 	/*
 	 * Create a Radio
@@ -73,6 +82,9 @@ private:
 
 	Queue<RadioEvent> *chQ = new Queue<RadioEvent>(30);
 
+	/**
+	 * Owner
+	 */
 	RadioInterpretter *radioInterpretter ;//= new RadioInterpretter(this);
 
 	/**
@@ -95,11 +107,21 @@ public:
 
 	void interrupt();
 
+	void writeRadio(RadioPacket *pkt, RadioPipe* pipeAddress);
+
 	void setup();
 
 	void loop();
 
 	void setInterruptIndicator(uint8_t pin);
+
+	const RadioInterpretter* getRadioInterpretter() const {
+		return radioInterpretter;
+	}
+
+	void setRadioInterpretter(RadioInterpretter * radioInterpretter) {
+		this->radioInterpretter = radioInterpretter;
+	}
 };
 
 

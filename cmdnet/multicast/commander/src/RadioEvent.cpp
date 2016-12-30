@@ -23,7 +23,7 @@ byte getByteAtLocationConst(const uint64_t* wordPtr, byte location) {
 	return ((*wordPtr) >> location) & 0xff;
 }
 
-RadioEvent::RadioEvent(const RadioPacket *radioPacket) {
+RadioEvent::RadioEvent(RadioPacket *radioPacket) {
 	this->radioPacket = radioPacket;
 }
 

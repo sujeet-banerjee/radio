@@ -17,8 +17,14 @@
 // Radio Module
 RadioInterceptor *radioInterceptor = new RadioInterceptor();
 
+//Radio Interpretter
+RadioInterpretter *radioInterpretter = new RadioInterpretter(radioInterceptor);
+
 // Device Manager Module
 DeviceManager *deviceManager = new DeviceManager();
+
+// SerialInterpretter (RxTx communication)
+SerialInterpretter *serialInterpretter = new SerialInterpretter();
 
 void indicateStartup() {
 	pinMode(LED_DEFAULT, OUTPUT);
@@ -49,7 +55,7 @@ void setup()
 	indicateStartup();
 	radioInterceptor->setInterruptIndicator(6);
 	radioInterceptor->setup();
-
+	radioInterpretter->setup();
 	deviceManager->setup();
 
 	// Does not work, due to C++ restrictions on type  system being able
@@ -74,15 +80,13 @@ void interruptRadio()
 }
 
 void testReadSerialCmd() {
-	while (Serial.available() > 0) {
-		String readRaw;
-		readRaw = Serial.read();
-		Serial.println(readRaw);
-		if (readRaw.startsWith("CMD ")) {
-			String cmd = readRaw.substring(4);
-			Serial.print("CMD: ");
-			Serial.println(cmd);
-		}
+	String inputString = "";
+	while (Serial.available() > 0)
+		inputString += Serial.read();
+
+	if (inputString.startsWith("CMD ")) {
+		Serial.print("[ACTUATOR] S-CMD: ");
+		Serial.println(inputString.substring(4));
 	}
 }
 
@@ -94,6 +98,15 @@ void loop() {
 	 */
 	radioInterceptor->loop();
 	deviceManager->loop();
+
+//	/*
+//	 * Temporary: a test delay to test the SerialEvent
+//	 * (i.e. serial read).
+//	 * FIXME remove this
+//	 */
+//	Serial.println("[Actuator] Delaying 3 secs...");
+//	delay(3000);
+//	Serial.println("[Actuator] Delaying 3 secs COMPLETED.");
 
 }
 

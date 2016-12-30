@@ -29,6 +29,7 @@
  */
 void setByteAtLocation(uint64_t* destPtr, byte src, byte location);
 byte getByteAtLocation(uint64_t* wordPtr, byte location);
+byte getByteAtLocationConst(const uint64_t* wordPtr, byte location);
 
 /**
  * Set/Get a byte, in an 8-byte-long Word.
@@ -53,6 +54,20 @@ byte getByteAtLocation(uint64_t* wordPtr, byte location);
 #define getWordByteB1(w)    ((byte)getByteAtLocation((w), 0))
 
 /*
+ * 'const' variations of all getByte** methods.
+ * This is needed as in C++ 'const pointer' can not
+ * be assigned to a 'pointer' (and vice-versa).
+ */
+#define getWordByteB8Const(w)    ((byte)getByteAtLocationConst((w), 56))
+#define getWordByteB7Const(w)    ((byte)getByteAtLocationConst((w), 48))
+#define getWordByteB6Const(w)    ((byte)getByteAtLocationConst((w), 40))
+#define getWordByteB5Const(w)    ((byte)getByteAtLocationConst((w), 32))
+#define getWordByteB4Const(w)    ((byte)getByteAtLocationConst((w), 24))
+#define getWordByteB3Const(w)    ((byte)getByteAtLocationConst((w), 16))
+#define getWordByteB2Const(w)    ((byte)getByteAtLocationConst((w), 8))
+#define getWordByteB1Const(w)    ((byte)getByteAtLocationConst((w), 0))
+
+/*
  * Command:
  *    first 6 bits (MSB) is command-head
  *    last 10 bit form the opcode.
@@ -67,10 +82,10 @@ typedef struct {
     }
 
     const char * toString() {
-    	static char newString[sizeof(*this) +1];
-		memcpy(&newString, this, sizeof(*this));
-		newString[sizeof(*this)] = 0;
-		return newString;
+        static char newString[sizeof(*this) +1];
+        memcpy(&newString, this, sizeof(*this));
+        newString[sizeof(*this)] = 0;
+        return newString;
     }
 
     void fromLong(uint64_t *input) {
@@ -84,7 +99,7 @@ typedef struct {
     }
 
     String toHexString(){
-		uint64_t longVal = this->toLong();
+    	uint64_t longVal = this->toLong();
 		String ret = String("");
 		ret += String(getWordByteB8(&longVal), HEX);
 		ret += String(getWordByteB7(&longVal), HEX);
@@ -99,14 +114,33 @@ typedef struct {
 
 } RadioPipe;
 
+
+/**
+ *
+ */
 typedef struct {
-	// 2
+	/*
+	 * 2
+	 * | STS/CMD
+	 * | REQ/ACK
+	 * | WAIT
+	 * |||
+	 */
     uint16_t head;
-    // 1
+    /*
+     * 1
+     * Unique per uC
+     */
     byte originatorNode;
-    // 5
+    /*
+     * 5
+     */
     RadioPipe replyTo;
-    // 8
+    /*
+     * 8
+     * <> Type;Id
+     * <><><> Data
+	 */
     uint64_t component;
 
     // 16
@@ -147,7 +181,7 @@ typedef struct {
 		ret += String(this->originatorNode, HEX);
 		ret += String("|Reply-to:");
 		RadioPipe replyTo = this->replyTo;
-		//ret += replyTo.toString();
+		//ret += String(replyTo.toString());
 		ret += replyTo.toHexString();
 		ret += String("|Component:");
 		ret += String(getWordByteB8(&(this->component)), HEX);
@@ -161,21 +195,95 @@ typedef struct {
 
 		return ret;
 	}
+
+//	String toString() {
+//		String ret = String("Head:");
+//		ret += String(this->head, HEX);
+//		ret += String("|Orig:");
+//		ret += String(this->originatorNode, HEX);
+//		ret += String("|Reply-to:");
+//		RadioPipe replyTo = this->replyTo;
+//		ret += replyTo.toString();
+//		ret += String("|Component:");
+//		ret += String(getWordByteB8(&(this->component)), HEX);
+//		ret += String(getWordByteB7(&(this->component)), HEX);
+//		ret += String(getWordByteB6(&(this->component)), HEX);
+//		ret += String(getWordByteB5(&(this->component)), HEX);
+//		ret += String(getWordByteB4(&(this->component)), HEX);
+//		ret += String(getWordByteB3(&(this->component)), HEX);
+//		ret += String(getWordByteB2(&(this->component)), HEX);
+//		ret += String(getWordByteB1(&(this->component)), HEX);
+//
+//		return ret;
+//	}
+
+	uint64_t getAdditional1() const {
+		return additional1;
+	}
+
+	void setAdditional1(uint64_t additional1) {
+		this->additional1 = additional1;
+	}
+
+	uint64_t getAdditional2() const {
+		return additional2;
+	}
+
+	void setAdditional2(uint64_t additional2) {
+		this->additional2 = additional2;
+	}
+
+	uint64_t getComponent() const {
+		return component;
+	}
+
+	void setComponent(uint64_t component) {
+		this->component = component;
+	}
+
+	uint16_t getHead() const {
+		return head;
+	}
+
+	void setHead(uint16_t head) {
+		this->head = head;
+	}
+
+	byte getOriginatorNode() const {
+		return originatorNode;
+	}
+
+	void setOriginatorNode(byte originatorNode) {
+		this->originatorNode = originatorNode;
+	}
+
+	const RadioPipe getReplyTo() const {
+		return replyTo;
+	}
+
+	void setReplyTo(const RadioPipe replyTo) {
+		this->replyTo = replyTo;
+	}
 } RadioPacket;
 
 
 class RadioEvent {
 private:
-	const RadioPacket *radioPacket ; //size == RADIO_DATA_SIZE;
+	RadioPacket *radioPacket ; //size == RADIO_DATA_SIZE;
 
 public:
-	RadioEvent (const RadioPacket *radioPacket);
+	RadioEvent (RadioPacket *radioPacket);
 	virtual ~RadioEvent();
 
 	inline uint16_t getRadioHead() {return this->radioPacket->head;}
 	inline byte getOriginatorNode()   {return this->radioPacket->originatorNode;}
 	inline RadioPipe getReplyToAddress()   {return this->radioPacket->replyTo;}
 	inline uint64_t getComponentData()   {return this->radioPacket->component;}
+
+	inline void setRadioHead(uint16_t head) {this->radioPacket->setHead(head);}
+	inline void setOriginatorNode(byte origNode)   {this->radioPacket->setOriginatorNode(origNode);}
+	inline void setReplyToAddress(RadioPipe addr)   {this->radioPacket->setReplyTo(addr);}
+	inline void setComponentData(uint64_t component)   {this->radioPacket->setComponent(component);}
 
 	inline bool isCmd() { return isCMD(this->radioPacket->head); }
 	inline bool isSts() {return isSTS(this->radioPacket->head);}
@@ -184,6 +292,8 @@ public:
 	inline bool isAckRequested() {return isACKWAIT(this->radioPacket->head);}
 
 	String toString();
+
+	inline const RadioPacket* getRadioPacket() const {return this->radioPacket;}
 };
 
 #endif /* SRC_RADIOEVENT_H_ */

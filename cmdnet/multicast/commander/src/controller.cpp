@@ -17,8 +17,14 @@
 // Radio Module
 RadioInterceptor *radioInterceptor = new RadioInterceptor();
 
+//Radio Interpretter
+RadioInterpretter *radioInterpretter = new RadioInterpretter(radioInterceptor);
+
 // Device Manager Module
 DeviceManager *deviceManager = new DeviceManager();
+
+// SerialInterpretter (RxTx communication)
+SerialInterpretter *serialInterpretter = new SerialInterpretter();
 
 void indicateStartup() {
 	pinMode(LED_DEFAULT, OUTPUT);
@@ -49,6 +55,7 @@ void setup()
 	indicateStartup();
 	radioInterceptor->setInterruptIndicator(6);
 	radioInterceptor->setup();
+	radioInterpretter->setup();
 	deviceManager->setup();
 
 	// Does not work, due to C++ restrictions on type  system being able
@@ -73,26 +80,43 @@ void interruptRadio()
 }
 
 void testReadSerialCmd() {
-	while (Serial.available() > 0) {
-		String readRaw;
-		readRaw = Serial.read();
-		Serial.println(readRaw);
-		if (readRaw.startsWith("CMD ")) {
-			String cmd = readRaw.substring(4);
-			Serial.print("CMD: ");
-			Serial.println(cmd);
-		}
+	String inputString = "";
+	while (Serial.available() > 0)
+		inputString += Serial.read();
+
+	if (inputString.startsWith("CMD ")) {
+		Serial.print("[COMMANDER] S-CMD: ");
+		Serial.println(inputString.substring(4));
 	}
 }
 
 void loop() {
-	testReadSerialCmd();
+//	testReadSerialCmd();
 
 	/*
 	 * All module loop
 	 */
 	radioInterceptor->loop();
 	deviceManager->loop();
+
+	/*
+	 * Temporary: a test delay to test the SerialEvent
+	 * (i.e. serial read).
+	 * FIXME remove this
+	 *
+	 * RESULT: Test successful. Can hold a max of 12 Radio events max,
+	 * after which the data seems to get corrupted!
+	 *
+	 */
+//	//Serial.println("[Commander] Delaying 2500 m-secs...");
+//	//delay(2500);
+//	for(int i=0; i<1000; i++)
+//	{
+//		delay(10);
+//		//Serial.print(".");
+//	}
+//	//Serial.println("\n[Commander] Delaying 2500 m-secs COMPLETED.");
+
 
 }
 
@@ -101,4 +125,5 @@ int main(void) {
 	setup();
 	while (true)
 		loop();
+	Serial.println("======== EXIT!!! ========");
 }

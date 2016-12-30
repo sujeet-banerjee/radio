@@ -143,13 +143,28 @@ typedef struct {
 */
 
 typedef struct {
-	// 2
+	/*
+	 * 2
+	 * | STS/CMD
+	 * | REQ/ACK
+	 * | WAIT
+	 * |||
+	 */
     uint16_t head;
-    // 1
+    /*
+     * 1
+     * Unique per uC
+     */
     byte originatorNode;
-    // 5
+    /*
+     * 5
+     */
     RadioPipe replyTo;
-    // 8
+    /*
+     * 8
+     * <> Type;Id
+     * <><><> Data
+	 */
     uint64_t component;
 
     // 16
@@ -220,21 +235,73 @@ typedef struct {
 //		return ret;
 //	}
 
+	uint64_t getAdditional1() const {
+		return additional1;
+	}
+
+	void setAdditional1(uint64_t additional1) {
+		this->additional1 = additional1;
+	}
+
+	uint64_t getAdditional2() const {
+		return additional2;
+	}
+
+	void setAdditional2(uint64_t additional2) {
+		this->additional2 = additional2;
+	}
+
+	uint64_t getComponent() const {
+		return component;
+	}
+
+	void setComponent(uint64_t component) {
+		this->component = component;
+	}
+
+	uint16_t getHead() const {
+		return head;
+	}
+
+	void setHead(uint16_t head) {
+		this->head = head;
+	}
+
+	byte getOriginatorNode() const {
+		return originatorNode;
+	}
+
+	void setOriginatorNode(byte originatorNode) {
+		this->originatorNode = originatorNode;
+	}
+
+	const RadioPipe getReplyTo() const {
+		return replyTo;
+	}
+
+	void setReplyTo(const RadioPipe replyTo) {
+		this->replyTo = replyTo;
+	}
 } RadioPacket;
 
 
 class RadioEvent {
 private:
-	const RadioPacket *radioPacket ; //size == RADIO_DATA_SIZE;
+	RadioPacket *radioPacket ; //size == RADIO_DATA_SIZE;
 
 public:
-	RadioEvent (const RadioPacket *radioPacket);
+	RadioEvent (RadioPacket *radioPacket);
 	virtual ~RadioEvent();
 
 	inline uint16_t getRadioHead() {return this->radioPacket->head;}
 	inline byte getOriginatorNode()   {return this->radioPacket->originatorNode;}
-	inline RadioPipe getReplyToAddress()   {return this->radioPacket->replyTo;}
+	inline RadioPipe * getReplyToAddress()   {return &(this->radioPacket->replyTo);}
 	inline uint64_t getComponentData()   {return this->radioPacket->component;}
+
+	inline void setRadioHead(uint16_t head) {this->radioPacket->setHead(head);}
+	inline void setOriginatorNode(byte origNode)   {this->radioPacket->setOriginatorNode(origNode);}
+	inline void setReplyToAddress(RadioPipe addr)   {this->radioPacket->setReplyTo(addr);}
+	inline void setComponentData(uint64_t component)   {this->radioPacket->setComponent(component);}
 
 	inline bool isCmd() { return isCMD(this->radioPacket->head); }
 	inline bool isSts() {return isSTS(this->radioPacket->head);}
@@ -243,6 +310,8 @@ public:
 	inline bool isAckRequested() {return isACKWAIT(this->radioPacket->head);}
 
 	String toString();
+
+	inline RadioPacket* getRadioPacket() {return this->radioPacket;}
 };
 
 #endif /* SRC_RADIOEVENT_H_ */

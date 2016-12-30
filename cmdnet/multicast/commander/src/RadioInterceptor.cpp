@@ -39,11 +39,14 @@ Fptr RadioInterceptor::getInterruptHandler() {
 
 void RadioInterceptor::setup() {
 
+	if(this->radioInterpretter == nullptr)
+		Serial.println("[Commander] [Warning] No RadioInterpretter defined, for callback on radio event");
+
 	pinMode(SCK, OUTPUT); //clock
 	pinMode(MOSI, OUTPUT); //data to slaves
 	pinMode(MISO, OUTPUT); //data to uC
 
-	Serial.println("Nrf24L01 Starting...");
+	Serial.println("[Commander] Radio module Starting...");
 
 	radio->begin();
 	radio->setPayloadSize(32);
@@ -82,6 +85,7 @@ void RadioInterceptor::loop() {
 		Serial.print("[Commander][DQ] Radio Event: ");
 		Serial.println(evt->data->toString());
 
+		this->radioInterpretter->interpret(evt->data);
 		delete evt;
 
 		Serial.print("[Commander][DQ] Radio Event Size: ");
@@ -145,3 +149,30 @@ void RadioInterceptor::setInterruptIndicator(uint8_t pin) {
 	digitalWrite(pin, LOW);
 	this->interruptIndicator = pin;
 }
+
+
+void RadioInterceptor::writeRadio(RadioPacket* pkt, RadioPipe* pipeAddress) {
+
+	this->radio->stopListening();
+	delay(20);
+
+	this->radio->openWritingPipe(pipeAddress->toLong());
+	delay(20);
+
+//	/*
+//	 * This just because you cant assign a
+//	 * const pointer to a non-const pointer
+//	 */
+//	RadioPacket *testData = new RadioPacket();
+//	testData->originatorNode = pkt->originatorNode;
+//	testData->head = pkt->head;
+	pkt->replyTo.fromLong(&(this->pipeA0));
+//	testData->component = pkt->component;
+	this->radio->write(pkt, sizeof(*pkt));
+	delay(20);
+//	delete testData;
+
+	this->radio->startListening();
+	delay(20);
+}
+
