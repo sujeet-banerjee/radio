@@ -39,8 +39,8 @@ void RadioInterpretter::interpret(RadioEvent* re) {
 	if(re == nullptr){
 		Serial.println("[WARNING!!!] null event ptr!!!");
 	} else {
-		re->setRadioHead(0x493f);
-		this->writeRadio(re, re->getReplyToAddress());
+//		re->setRadioHead(0x493f);
+//		this->writeRadio(re, re->getReplyToAddress());
 	}
 }
 
@@ -48,10 +48,10 @@ void RadioInterpretter::writeRadio(RadioEvent* re, RadioPipe* pipeAddress) {
 	RadioPacket* pkt = re->getRadioPacket();
 
 	// FIXME uncomment this once we fix the radio event queuing only for read-data
-	Serial.print("[Commander][Radio] About to echo pkt: ");
-	Serial.print(pkt->toString());
-	Serial.print(" to: ");
-	Serial.println(pipeAddress->toHexString());
+//	Serial.print("[Commander][Radio] About to echo pkt: ");
+//	Serial.print(pkt->toString());
+//	Serial.print(" to: ");
+//	Serial.println(pipeAddress->toHexString());
 //	this->radioInterceptor->writeRadio(pkt, pipeAddress);
 }
 

@@ -109,6 +109,17 @@ void RadioInterceptor::indicateInterrupt() {
 
 void RadioInterceptor::interrupt() {
 	indicateInterrupt();
+
+	/**
+	 * These are causing the status to be consumed,
+	 * resulting into failure in radio->available call
+	 * that follows...
+	 *
+	 * bool txOk, txFail, rxReady;
+	 * radio->whatHappened(txOk, txFail, rxReady);
+	 *
+	 */
+
 	if (radio->available()) {
 		bool done = false;
 		int pktFragmentCount = 0;
