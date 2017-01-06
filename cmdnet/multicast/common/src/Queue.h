@@ -80,7 +80,7 @@ public:
 		if(count<=0)
 			return nullptr;
 
-		if(head==tail || head==nullptr || tail==nullptr)
+		if(head==nullptr || tail==nullptr)
 			return nullptr;
 
 		Element<T>* temp = tail;
